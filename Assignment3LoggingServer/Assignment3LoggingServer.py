@@ -1,12 +1,32 @@
 import sys
 import socket
 from datetime import datetime
+import json
 
-MAX_BYTES = 1024 #Constant for max bytes to receive in a log message
-MAX_TIMEOUT = 600
-# Access cmd line arguments, must be exactly 3
-if len(sys.argv) != 3:
-    print('Usage: logger.py 127.0.0.1 C:\\Log.log\nExiting service')
+# MAX_BYTES = 1024 #Constant for max bytes to receive in a log message
+# MAX_TIMEOUT = 600
+
+configFile = open('config.json')
+config = json.load(configFile)
+
+hasConfig = 1
+logfilePath = config['log_file_path']
+port = config['port']
+ipAddr = config['ip_address']
+timeout = config['timeout']
+maxBytes = config['max_bytes']
+
+if ipAddr == "":
+    print('Configured IP Address missing: Please configure an IP address in the config file')
+    hasConfig = 0
+if port == "":
+    print('Configured port missing: Please configure a port in the config file')
+    hasConfig = 0
+if logfilePath == "":
+    print('Configured port missing: Please configure a log file path in the config file')
+    hasConfig = 0
+
+if hasConfig == 0:
     sys.exit(1)
 
 class Logger:
@@ -29,20 +49,20 @@ class Logger:
             self.Log(f'{dt} [?] [Malformed Log] - {message}\n')
 
 
-logger = Logger(sys.argv[2])
+logger = Logger(logfilePath)
 
-LISTEN_IP = sys.argv[1]
-LISTEN_PORT = 13000
+LISTEN_IP = ipAddr
+LISTEN_PORT = port
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #create a UDP socket
 
 sock.bind((LISTEN_IP, LISTEN_PORT))  #bind it to an IP and Port
 
-sock.settimeout(MAX_TIMEOUT)
+sock.settimeout(timeout)
 
 while True:
     try:
-        data, addr = sock.recvfrom(MAX_BYTES)
+        data, addr = sock.recvfrom(maxBytes)
         message = data.decode('utf-8')
         logger.CreateLogMessage(addr[0],message)
     except UnicodeDecodeError:
