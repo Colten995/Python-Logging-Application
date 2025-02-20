@@ -24,7 +24,8 @@ class Logger:
             severity = parts[0]
             level = parts[1]
             logMessage = parts[2]
-            self.Log(f'{dt} [{severity}] [{level}] - {logMessage}\n')
+            print(f"LOG: {dt} [{receivedFrom}] [{severity}] [{level}] - {logMessage}")
+            self.Log(f'{dt} [{receivedFrom}][{severity}] [{level}] - {logMessage}\n')
         else:
             self.Log(f'{dt} [?] [Malformed Log] - {message}\n')
 
@@ -53,6 +54,7 @@ while True:
         sock.close()  
         break
     except Exception as e:
+         remote_addr = addr[0] if 'addr' in locals() else 'Unknown'
          logger.CreateLogMessage(addr[0], f"4|WARN|Logger experienced unknown exception: {e}")
 
 
