@@ -17,43 +17,33 @@ namespace Assignment3LoggingTestClient
     {
         static void Main(string[] args)
         {
-            string serverIp = ConfigurationManager.AppSettings.Get("ip_address");
-            int serverPort = Int32.Parse(ConfigurationManager.AppSettings.Get("port"));
-            int delay = Int32.Parse(ConfigurationManager.AppSettings.Get("delay"));
+            string serverIp = "";
+            int serverPort = 0;
+            int delay = 0;
             try
             {
-                using (UdpClient udpClient = new UdpClient())
-                {
-                    udpClient.Connect(serverIp, serverPort);
-
-                    string[] messages = {
-                    "1|INFO|Application started.",
-                    "1|DEBUG|Initializing components.",
-                    "3|WARN|Low memory warning!",
-                    "Malformed line",
-                    "4|ERROR|Divide by zero occurred!",
-                    "5|FATAL|Unexpected crash detected." };
-
-                    foreach (string message in messages)
-                    {
-                        byte[] data = Encoding.UTF8.GetBytes(message);
-                        udpClient.Send(data, data.Length);
-                        Console.WriteLine($"Sent: {message}");
-
-                        Thread.Sleep(delay); 
-                    }
-
-                    Console.WriteLine("Finished sending messages.");
-                }
-            }
-            catch (SocketException ex)
-            {
-                Console.WriteLine($"[ERROR] Failed to send data: {ex.Message}");
+                serverIp = ConfigurationManager.AppSettings.Get("ip_address");
+                serverPort = Int32.Parse(ConfigurationManager.AppSettings.Get("port"));
+                delay = Int32.Parse(ConfigurationManager.AppSettings.Get("delay"));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Unexpected error: {ex.Message}");
+                Console.WriteLine("One or more errors in configuration files. Exiting Program");
+                return;
             }
+
+            TestClient client;
+
+            if (string.IsNullOrEmpty(serverIp) || serverPort <= 0 || delay < 0)
+            {
+                Console.WriteLine("One or more errors in configuation file, using defaults...");
+                client = new TestClient();
+            }
+            else
+            {
+                client = new TestClient(serverIp, serverPort, delay);
+            }
+            client.runProgram();
         }
     }
 }
