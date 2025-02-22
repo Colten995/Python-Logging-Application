@@ -1,18 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿/*
+ * Filename:    TestClient.cs
+ * Program:     Assignment3LoggingTestClient
+ * Programmer:  Luke Alkema
+ * Description: This file holds the TestClient class for the project. * 
+ */
+using System;
+using System.ComponentModel;
 using System.Net.Sockets;
 using System.Text;
-using System.Net;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Linq.Expressions;
-using System.Configuration;
-using System.Collections.Specialized;
 
 namespace Assignment3LoggingTestClient
 {
 
+    /*
+     * Class:       TestClient
+     * Description: This class has the functionality to send log messages to a UDP server on the IP address and port specified. 
+     *              The class has a automated test to run preset log messages to the server, as well as the ablity to send manual ones.
+     */
     public class TestClient
     {
         private string serverIp = "";
@@ -20,10 +25,12 @@ namespace Assignment3LoggingTestClient
         private int delay = 0;
         private UdpClient udpClient;
 
+        //Default Constructor calls other constructor with parameters
         public TestClient() : this("127.0.0.1", 13000, 500)
         {
         }
 
+        //Overloaded Constructor, takes Ip address, port, and delay for automated tests
         public TestClient(string newServerIp, int newServerPort, int newDelay)
         {
             serverPort = newServerPort;
@@ -33,6 +40,9 @@ namespace Assignment3LoggingTestClient
             delay = newDelay;
         }
 
+        //Parameters: String - logMessage
+        //Returns:    void
+        //Description: sends a string message via UDP connection to server class is connected to
         public void sendLog(string logMessage)
         {
             try
@@ -47,6 +57,9 @@ namespace Assignment3LoggingTestClient
             }
         }
 
+        //Parameters: void
+        //Returns:    void
+        //Description: sends logs in a loop and delay's between each.
         public void automatedTest()
         {
             string[] messages = {
@@ -63,12 +76,22 @@ namespace Assignment3LoggingTestClient
                 Thread.Sleep(delay);
             }
         }
+
+
+        //Parameters: void
+        //Returns:    void
+        //Description: Allows user to enter a string to log manually
         public void manualTest()
         {
             Console.WriteLine("Please Enter Log Message to Send >>");
             string message = Console.ReadLine();
             sendLog(message);
         }
+
+
+        //Parameters: void
+        //Returns:    void
+        //Description: prints a menu
         public void printMenu()
         {
             Console.WriteLine("-----------Menu-----------");
@@ -78,6 +101,10 @@ namespace Assignment3LoggingTestClient
             Console.WriteLine("--------------------------");
         }
 
+
+        //Parameters: void
+        //Returns:    void
+        //Description: Runs a user interface to use the class in a user friendly manner.
         public void runProgram()
         {
             while (true)

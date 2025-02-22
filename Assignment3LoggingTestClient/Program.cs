@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Net;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Linq.Expressions;
+﻿/*
+ * Filename:    Program.cs
+ * Program:     Assignment3LoggingTestClient
+ * Programmer:  Luke Alkema
+ * Description: This file is the test harness to use the TestClient Class.
+ */
+using System;
 using System.Configuration;
-using System.Collections.Specialized;
-
 
 namespace Assignment3LoggingTestClient
 {
+    //Description: This Program class gets information from the app.config file for the serverIp, port, and delay.
+    //Once the parameters have been verified it creates a TestClient object runs the user interface program. 
     internal class Program
     {
         static void Main(string[] args)
