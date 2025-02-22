@@ -70,10 +70,18 @@ namespace Assignment3LoggingTestClient
                     "4|ERROR|Divide by zero occurred!",
                     "5|FATAL|Unexpected crash detected." };
 
+            //Testing 5 different log messages
             foreach (string message in messages)
             {
                 sendLog(message);
                 Thread.Sleep(delay);
+            }
+
+            //Test over-logging by sending 125 random logs
+            Random messageNum = new Random();
+            for (int i = 0; i < 125; i++)
+            {
+                sendLog(messages[messageNum.Next(messages.Length)]);
             }
         }
 

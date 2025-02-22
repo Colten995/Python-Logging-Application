@@ -1,8 +1,9 @@
 {
-  "timeout": 120,
+  "timeout": 30,
   "max_bytes": 1024,
   "ip_address": "127.0.0.1",
   "port": 13000,
   "log_file_path": "C:\\Logs\\log.log",
-  "format_type": "syslog"
+  "format_type": "syslog",
+  "max_logs": 100
 }
