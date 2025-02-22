@@ -1,5 +1,5 @@
 {
-  "timeout": 120,
+  "timeout": 30,
   "max_bytes": 1024,
   "ip_address": "127.0.0.1",
   "port": 13000,

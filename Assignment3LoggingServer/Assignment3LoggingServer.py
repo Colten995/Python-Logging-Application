@@ -1,4 +1,3 @@
-import sys
 import socket
 from datetime import datetime
 import json
@@ -20,46 +19,58 @@ maxBytes = 0
 formatType = ""
 maxLogs = 0
 
+# Default config values
+defaultIPAddr = "127.0.0.1"
+defaultPort = 13000
+defaultLogFilePath = "C:\\Logs\\log.log"
+defaultTimeout = 600
+defaultMaxBytes = 1024
+defaultFormatType = "syslog"
+defaultMaxLogs = 100
+
 hasConfig = 1
 
-#TODO add default values if it's not specified
-if config['ip_address'] == "":
-    print('Configured IP Address missing: Please configure an IP address in the config file')
-    hasConfig = 0
+# Get IP Address from config file and validate
+if config['ip_address'] == "" or config['ip_address'].isnumeric():
+    ipAddr = defaultIPAddr
 else:
     ipAddr = config['ip_address']
-if config['port'] == "":
-    print('Configured port missing: Please configure a port in the config file')
-    hasConfig = 0
+
+# Get port number from config file and validate
+if 0 > config['port'] > 65535:
+    port = defaultPort
 else:
     port = config['port']
-if config['log_file_path'] == "":
-    print('Configured port missing: Please configure a log file path in the config file')
-    hasConfig = 0
+
+# Get log file path from config file and validate
+if config['log_file_path'] == "" or config['log_file_path'].isnumeric():
+    logFilePath = defaultLogFilePath
 else:
     logFilePath = config['log_file_path']
-if config['timeout'] == "":
-    print('Configured timeout missing: Please configure a timeout value in the config file')
-    hasConfig = 0
+
+# Get timeout from config file and validate
+if config['timeout'] < 0:
+    timeout = defaultTimeout
 else:
     timeout = config['timeout']
-if config['max_bytes'] == "":
-    print('Configured max bytes missing: Please configure a max bytes value in the config file')
-    hasConfig = 0
+
+# Get max bytes from config file and validate
+if config['max_bytes'] < 0:
+    maxBytes = defaultMaxBytes
 else:
     maxBytes = config['max_bytes']
-if config['format_type'] == "":
-    print('Configured format type missing: Please configure a format type value in the config file')
-    hasConfig = 0
+
+# Get format type from config file and validate
+if config['format_type'] == "" or config['format_type'].isnumeric() or (config['format_type'] != 'syslog' and config['format_type'] != 'xml' and config['format_type'] != 'csv'):
+    formatType = defaultFormatType
 else:
     formatType = config['format_type']
-if config['max_logs'] == "":
-    maxLogs = 100
+
+# Get maximum number of logs from the config file and validate
+if config['max_logs'] < 0:
+    maxLogs = defaultMaxLogs
 else:
     maxLogs = config['max_logs']
-
-if hasConfig == 0:
-    sys.exit(1)
 
 
 def verifyHost (hostInfo):
@@ -169,15 +180,15 @@ while True:
         hostExists = False
 
     except UnicodeDecodeError:
-        logger.CreateSyslogMessage(addr[0], "3|WARN|Logger couldn't decode message, skipping")
+        logger.CreateLog(addr[0], "3|WARN|Logger couldn't decode message, skipping")
     except socket.timeout:
-        logger.CreateSyslogMessage('Server', "3|WARN|Socket timed out, no data received.")
+        logger.CreateLog('Server', "3|WARN|Socket timed out, no data received.")
     except KeyboardInterrupt:
         sock.close()
         break
     except Exception as e:
         remote_addr = addr[0] if 'addr' in locals() else 'Unknown'
-        logger.CreateSyslogMessage(addr[0], f"4|WARN|Logger experienced unknown exception: {e}")
+        logger.CreateLog(addr[0], f"4|WARN|Logger experienced unknown exception: {e}")
 
 
 
