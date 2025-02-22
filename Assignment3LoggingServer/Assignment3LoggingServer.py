@@ -85,7 +85,7 @@ def verifyHost (hostInfo):
     #otherwise check the counter
     else:
         # if the counter is more than or equal to the max logs don't allow the log
-        if hostsLogCounter >= maxLogs:
+        if hostsLogCounter > maxLogs:
             return False
         else:
             return True
@@ -167,7 +167,7 @@ while True:
             # Verify the host is allowed to log
             if verifyHost(currentHostInfo):
                 # Reset their number of logs if they are over the maximum amount
-                if currentHostInfo[1] >= maxLogs:
+                if currentHostInfo[1] > maxLogs:
                     # reset the counter and the last log time
                     currentHostInfo[1] = 0
                     currentHostInfo[2] = time.time()

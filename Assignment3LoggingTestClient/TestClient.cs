@@ -9,6 +9,7 @@ using System.Threading;
 using System.Linq.Expressions;
 using System.Configuration;
 using System.Collections.Specialized;
+using System.Runtime.Remoting.Messaging;
 
 namespace Assignment3LoggingTestClient
 {
@@ -57,14 +58,18 @@ namespace Assignment3LoggingTestClient
                     "4|ERROR|Divide by zero occurred!",
                     "5|FATAL|Unexpected crash detected." };
 
+            //Testing 5 different log messages
             foreach (string message in messages)
             {
-                //Added code to test over-logging by sending 125 log messages
-                for (int i = 0; i < 25; i++)
-                {
-                    sendLog(message);
-                }
+                sendLog(message);
                 Thread.Sleep(delay);
+            }
+
+            //Test over-logging by sending 125 random logs
+            Random messageNum = new Random();
+            for (int i = 0; i < 125; i++)
+            {
+                sendLog(messages[messageNum.Next(messages.Length)]);
             }
         }
         public void manualTest()
