@@ -79,16 +79,6 @@ def verifyHost (hostInfo):
         else:
             return True
 
-
-
-def logMessage (addr, message, logger):
-    if formatType == "syslog":
-        logger.CreateSyslogMessage(addr[0], message)
-    elif formatType == "csv":
-        logger.CreateCSVLogMessage(addr[0], message)
-    elif formatType == "xml":
-        logger.CreateXMLLogMessage(addr[0], message)
-
 class Logger:
     def __init__(self, logfilePath):
         self.logfilePath = logfilePath
@@ -96,38 +86,33 @@ class Logger:
     def Log(self, logMessage):
         with open(self.logfilePath, "a") as file:
             file.write(f'{logMessage}')
-    
-    def CreateSyslogMessage(self, receivedFrom, message):
-        dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  #formatting date and time for the log
-        parts = message.split('|')
-        if len(parts) == 3:
-            severity = parts[0]
-            level = parts[1]
-            logMessage = parts[2]
-            print(f"LOG: {dt} [{receivedFrom}] [{severity}] [{level}] - {logMessage}")
-            self.Log(f'{dt} [{receivedFrom}][{severity}] [{level}] - {logMessage}\n')
 
-    def CreateCSVLogMessage(self, receivedFrom, message):
-        dt = datetime.now().strftime("%d-%m-%Y,%H:%M:%S")  # formatting date and time for the log
+    def CreateLog(self, receivedFrom, message):
         parts = message.split('|')
         if len(parts) == 3:
             severity = parts[0]
             level = parts[1]
             logMessage = parts[2]
-            print(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}")
-            self.Log(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}\n")
 
-    def CreateXMLLogMessage(self, receivedFrom, message):
-        dt = datetime.now().strftime("<date>%m-%d-%Y</date> <time>%H:%M:%S</time>")  # formatting date and time for the log
-        parts = message.split('|')
-        if len(parts) == 3:
-            severity = parts[0]
-            level = parts[1]
-            logMessage = parts[2]
-            print(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
-            "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>")
-            self.Log(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
-            "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>\n")
+            if formatType == "syslog":
+                dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
+                print(f"LOG: {dt} [{receivedFrom}] [{severity}] [{level}] - {logMessage}")
+                self.Log(f'{dt} [{receivedFrom}][{severity}] [{level}] - {logMessage}\n')
+                return True
+            elif formatType == "csv":
+                dt = datetime.now().strftime("%d-%m-%Y %H:%M:%S")  # formatting date and time for the log
+                print(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}")
+                self.Log(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}\n")
+                return True
+            elif formatType == "xml":
+                dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
+                print(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
+                "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>")
+                self.Log(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
+                "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>\n")
+                return True
+        else:
+            return False
 
 
 logger = Logger(logFilePath)
@@ -142,7 +127,8 @@ sock.bind((LISTEN_IP, LISTEN_PORT))  #bind it to an IP and Port
 sock.settimeout(timeout)
 
 activeLoggingHosts = []
-hostAdded = False
+currentHostInfo = []
+hostExists = False
 #initialize to true or the first host won't be added
 allowLog = True
 
@@ -152,32 +138,35 @@ while True:
         data, addr = sock.recvfrom(maxBytes)
         message = data.decode('utf-8')
 
+        # See if the host is in the list of hosts already
         for host in activeLoggingHosts:
-            # check if address is in the list of hosts
             if host[0] == addr[0]:
-                #If the log is allowed write the log message
-                allowLog = verifyHost(host)
-                if allowLog:
-                    if host[1] >= maxLogs:
-                        #reset the counter and the last log time
-                        host[1] = 0
-                        host[2] = time.time()
-                    logMessage(addr, message, logger)
-                    #increment the counter by 1
-                    host[1] += 1
-                    hostAdded = True
+                hostExists = True
+                currentHostInfo = host
 
-        #If the host hasn't been added and they are allowed to log
-        if hostAdded == False and allowLog:
+        # If the host hasn't been added, add them to the list
+        if hostExists == False:
             # Add the new host to the list
             activeLoggingHostsInfo = [addr[0], 1, time.time()]
             activeLoggingHosts.append(activeLoggingHostsInfo)
-            #log the message
-            logMessage(addr, message, logger)
+            currentHostInfo = activeLoggingHostsInfo
+
+        # Make sure currentHostInfo is not empty before verifying host
+        if currentHostInfo != []:
+            # Verify the host is allowed to log
+            if verifyHost(currentHostInfo):
+                # Reset their number of logs if they are over the maximum amount
+                if currentHostInfo[1] >= maxLogs:
+                    # reset the counter and the last log time
+                    currentHostInfo[1] = 0
+                    currentHostInfo[2] = time.time()
+                # If the log is successful increment the counter
+                if logger.CreateLog(addr[0], message):
+                    # increment the counter by 1
+                    currentHostInfo[1] += 1
 
         #reset flags
-        hostAdded = False
-        allowLog = False
+        hostExists = False
 
     except UnicodeDecodeError:
         logger.CreateSyslogMessage(addr[0], "3|WARN|Logger couldn't decode message, skipping")
