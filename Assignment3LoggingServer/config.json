@@ -4,5 +4,6 @@
   "ip_address": "127.0.0.1",
   "port": 13000,
   "log_file_path": "C:\\Logs\\log.log",
-  "format_type": "xml"
+  "format_type": "xml",
+  "max_logs": 100
 }

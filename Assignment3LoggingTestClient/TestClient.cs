@@ -59,7 +59,11 @@ namespace Assignment3LoggingTestClient
 
             foreach (string message in messages)
             {
-                sendLog(message);
+                //Added code to test over-logging by sending 125 log messages
+                for (int i = 0; i < 25; i++)
+                {
+                    sendLog(message);
+                }
                 Thread.Sleep(delay);
             }
         }
