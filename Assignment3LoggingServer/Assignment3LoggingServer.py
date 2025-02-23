@@ -1,10 +1,18 @@
-
+#
+# Filename: Assignment3LoggingServer.py
+# Program: Assignment3LoggingServer
+# Programmers: Luke Alkema, Colten Goetz
+# Description: This file contains the code to run the logging server. The logging server is configured via the config.json file. The server has a logger class to log
+# messages to a file. The logging server can log different formats of logs depending on the configuration. The logging service also gives each host a maximum number
+# of logs allowed within a configurable time window.
+#
 
 import socket
-from datetime import datetime
 import json
 import time
+import Logger
 
+#Open the config file and load settings into an object
 configFile = open('config.json')
 config = json.load(configFile)
 
@@ -27,7 +35,7 @@ defaultFormatType = "syslog"
 defaultMaxLogs = 100
 defaultAllowedLogInterval = 3600
 
-hasConfig = 1
+#Get the config settings from the config object
 
 # Get IP Address from config file and validate
 if config['ip_address'] == "" or config['ip_address'].isnumeric():
@@ -77,10 +85,15 @@ if config['allowed_log_interval'] < 0:
 else:
     allowedLogInterval = config['allowed_log_interval']
 
-
+# Name: verifyHost
+# Description: This function verifies if the host is allowed to log a message by looking at the last log time from that host and the maximum number of logs
+# Params: hostInfo : The list containing the information of the host to verify including: IP Address, Port, and log counter
+# Returns: boolean : indicates if the host is allowed to log or not
 def verifyHost (hostInfo):
+    #Put the host information into different variables for easier code readability
     hostsLogCounter = hostInfo[1]
     hostsLogTime = hostInfo[2]
+
     # compare current time and first log time
     logTimeDifference = time.time() - hostsLogTime
 
@@ -95,44 +108,10 @@ def verifyHost (hostInfo):
         else:
             return True
 
-class Logger:
-    def __init__(self, logfilePath):
-        self.logfilePath = logfilePath
-        
-    def Log(self, logMessage):
-        with open(self.logfilePath, "a") as file:
-            file.write(f'{logMessage}')
+# Create the logger
+logger = Logger.Logger(logFilePath, formatType)
 
-    def CreateLog(self, receivedFrom, message):
-        parts = message.split('|')
-        if len(parts) == 3:
-            severity = parts[0]
-            level = parts[1]
-            logMessage = parts[2]
-
-            if formatType == "syslog":
-                dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt} [{receivedFrom}] [{severity}] [{level}] - {logMessage}")
-                self.Log(f'{dt} [{receivedFrom}][{severity}] [{level}] - {logMessage}\n')
-                return True
-            elif formatType == "csv":
-                dt = datetime.now().strftime("%d-%m-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}")
-                self.Log(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}\n")
-                return True
-            elif formatType == "xml":
-                dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
-                "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>")
-                self.Log(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
-                "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>\n")
-                return True
-        else:
-            return False
-
-
-logger = Logger(logFilePath)
-
+# Set up the socket
 LISTEN_IP = ipAddr
 LISTEN_PORT = port
 
@@ -145,10 +124,8 @@ sock.settimeout(timeout)
 activeLoggingHosts = []
 currentHostInfo = []
 hostExists = False
-#initialize to true or the first host won't be added
-allowLog = True
 
-
+# Main loop listening for logging messages until socket timeout
 while True:
     try:
         data, addr = sock.recvfrom(maxBytes)

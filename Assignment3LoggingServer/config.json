@@ -5,6 +5,6 @@
   "port": 13000,
   "log_file_path": "C:\\Logs\\log.log",
   "format_type": "syslog",
-  "max_logs": 10,
+  "max_logs": 100,
   "allowed_log_interval": 3600
 }

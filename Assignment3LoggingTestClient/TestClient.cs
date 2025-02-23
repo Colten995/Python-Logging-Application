@@ -1,7 +1,7 @@
 ﻿/*
  * Filename:    TestClient.cs
  * Program:     Assignment3LoggingTestClient
- * Programmer:  Luke Alkema
+ * Programmer:  Luke Alkema, Colten Goetz
  * Description: This file holds the TestClient class for the project. * 
  */
 using System;

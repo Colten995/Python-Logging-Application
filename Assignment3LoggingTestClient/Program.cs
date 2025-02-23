@@ -1,7 +1,7 @@
 ﻿/*
  * Filename:    Program.cs
  * Program:     Assignment3LoggingTestClient
- * Programmer:  Luke Alkema
+ * Programmer:  Luke Alkema, Colten Goetz
  * Description: This file is the test harness to use the TestClient Class.
  */
 using System;
