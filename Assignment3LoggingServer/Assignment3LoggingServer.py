@@ -3,11 +3,6 @@ from datetime import datetime
 import json
 import time
 
-# MAX_BYTES = 1024 #Constant for max bytes to receive in a log message
-# MAX_TIMEOUT = 600
-
-HOUR_MILLIS = 3600000
-
 configFile = open('config.json')
 config = json.load(configFile)
 
@@ -18,6 +13,7 @@ timeout = 0
 maxBytes = 0
 formatType = ""
 maxLogs = 0
+allowedLogInterval = 0
 
 # Default config values
 defaultIPAddr = "127.0.0.1"
@@ -27,6 +23,7 @@ defaultTimeout = 600
 defaultMaxBytes = 1024
 defaultFormatType = "syslog"
 defaultMaxLogs = 100
+defaultAllowedLogInterval = 3600
 
 hasConfig = 1
 
@@ -72,6 +69,12 @@ if config['max_logs'] < 0:
 else:
     maxLogs = config['max_logs']
 
+# Get allowed log interval from the config file and validate
+if config['allowed_log_interval'] < 0:
+    allowedLogInterval = defaultAllowedLogInterval
+else:
+    allowedLogInterval = config['allowed_log_interval']
+
 
 def verifyHost (hostInfo):
     hostsLogCounter = hostInfo[1]
@@ -80,7 +83,7 @@ def verifyHost (hostInfo):
     logTimeDifference = time.time() - hostsLogTime
 
     #If the last log was more than an hour ago allow the log
-    if logTimeDifference > HOUR_MILLIS:
+    if logTimeDifference > allowedLogInterval:
         return True
     #otherwise check the counter
     else:
