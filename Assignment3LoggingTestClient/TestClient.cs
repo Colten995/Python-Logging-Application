@@ -59,7 +59,9 @@ namespace Assignment3LoggingTestClient
 
         //Parameters: void
         //Returns:    void
-        //Description: sends logs in a loop and delay's between each.
+        //Description: Runs the tests to send logging messages on the network. The first test sends logs in a loop and delay's
+        //             between each. The second test sends a large amount of logs at once to test over-logging capabilities
+                       
         public void automatedTest()
         {
             string[] messages = {
