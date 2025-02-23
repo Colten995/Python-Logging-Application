@@ -41,18 +41,14 @@ class Logger:
             # Check log format type and create the log using the provided format
             if self.formatType == "syslog":
                 dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt} [{receivedFrom}] [{severity}] [{level}] - {logMessage}")
                 self.Log(f'{dt} [{receivedFrom}][{severity}] [{level}] - {logMessage}\n')
                 return True
             elif self.formatType == "csv":
                 dt = datetime.now().strftime("%d-%m-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}")
                 self.Log(f"LOG: {dt},[{severity}],[{level}],[{receivedFrom}],- {logMessage}\n")
                 return True
             elif self.formatType == "xml":
                 dt = datetime.now().strftime("%m-%d-%Y %H:%M:%S")  # formatting date and time for the log
-                print(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
-                "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>")
                 self.Log(f"LOG: {dt} <severity>[{severity}]</severity> <level>[{level}]</level> "
                 "<received_from>[{receivedFrom}]</received_from> - <message>{logMessage}</message>\n")
                 return True

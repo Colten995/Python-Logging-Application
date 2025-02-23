@@ -125,6 +125,8 @@ activeLoggingHosts = []
 currentHostInfo = []
 hostExists = False
 
+addr = ""
+
 # Main loop listening for logging messages until socket timeout
 while True:
     try:
